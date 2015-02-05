@@ -1,18 +1,16 @@
 import wx
 import storage
 import processor
+from runner import Runner
 
 from glob import glob
 import os
 from os.path import join
-import taglib
-import mp3parser
+
+
 
 # Helper fxn for the process
-import ntpath
-def pathLeaf(path):
-    head, tail = ntpath.split(path)
-    return tail or ntpath.basename(head)
+
 
 class Window(wx.Frame):
     def __init__(
@@ -95,24 +93,17 @@ class Window(wx.Frame):
 
     def EvtText(self, event):
         self.storage.data["targetDir"] = event.GetString()
-    
-    def EvtRun(self, event):
-        try:
-            self.resultsWindow.Close()
-        except:
-            # If the window doesn't exist or if has already been closed
-            pass
 
+    def EvtRun(self, event):
         # Update the target dir
         self.storage.data["targetDir"] = self.dirSelect.GetValue()
 
-        # Get all files in desired dir
-        files = glob(join(self.storage.data["targetDir"], "*.mp3"))
+        runner = Runner(self.storage.data)
 
         dlg = wx.ProgressDialog(
             "Running",
             "Current Song: ",
-            maximum = len(files) + 1,
+            maximum = len(runner.files) + 1,
             parent=self,
             style = 0
             | wx.PD_APP_MODAL
@@ -120,53 +111,14 @@ class Window(wx.Frame):
             | wx.PD_ELAPSED_TIME
             | wx.PD_ESTIMATED_TIME
             | wx.PD_REMAINING_TIME)
-
-        # Update the artist list
-        mp3parser.artistList = self.storage.data["artists"]
         
-        finished = 0
-        results = []
-        for fileName in files:
-            finished += 1
-            raw = pathLeaf(fileName)[:-4]
-            keepgoing, skip = dlg.Update(finished, "Current Song: " + raw)
-            if not keepgoing:
-                break
-
-            try:
-                tag = taglib.MP3(fileName)
-            except:
-                results.append(["Error", raw, "", ""])
-                continue
-
-            # TODO: Maybe add option to overwrite old data
-            if not self.storage.data["settings"]["overwriteTags"] and tag.artist is not None and tag.name is not None:
-                mp3parser.artistList.add(tag.artist.lower())
-                results.append(["Skipped", raw, tag.artist, tag.name])
-                del tag
-                continue
-
-            artist, name = mp3parser.parse(raw, self.storage.data["settings"]["useLastFM"])
-            if artist is None:
-                results.append(["Bad", raw, "", ""])
-                del tag
-            else:
-                tag.artist = artist
-                tag.name = name
-                tag.dump("temp.mp3")
-                del tag
-                os.remove(fileName)
-                os.rename("temp.mp3", fileName)
-
-                results.append(["Good", raw, artist, name])
-
-        self.storage.data["artists"] = mp3parser.artistList
+        runner.run(dlg)
         dlg.Destroy()
 
         # Create the new window then show the results
         self.resultsWindow = wx.Frame(self, -1, title="Results",
                      pos=(100,100), size=(800,400), style=wx.DEFAULT_FRAME_STYLE)
-        pr = processor.ProcessPanel(self.resultsWindow, results, files)
+        pr = processor.ProcessPanel(self.resultsWindow, runner.results, runner.files)
         self.resultsWindow.Show()
         
     def PickDir(self, event):
@@ -181,6 +133,6 @@ class Window(wx.Frame):
 if __name__ == "__main__":
     app = wx.App()
     with storage.Storage() as s:
-        Window(None, -1, title="mp3 cleaner - Marco Lilek", storage=s)
+        Window(None, -1, title="musiClr", storage=s)
         app.MainLoop()
     

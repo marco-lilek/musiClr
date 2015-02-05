@@ -9,6 +9,9 @@ import xml.etree.ElementTree as ET
 
 artistList = set()
 
+def addToArtistList(artist):
+    artistList.add(artist.lower().strip())
+
 """
 Returns a tuple of (artist, title) or (None, None)
 """
@@ -26,7 +29,7 @@ def parse(raw, useLastFM):
          return None, None
     else:
         # Add to storage
-        artistList.add(artist.lower().strip())
+        addToArtistList(artist)
         
         brackets.insert(0, title)
         return (artist.strip(), " ".join(brackets).strip())
