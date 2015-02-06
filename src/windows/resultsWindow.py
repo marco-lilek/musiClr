@@ -1,13 +1,12 @@
 import wx
 import wx.dataview as dv
-from modifyTag import TagWrapper
+from utils.modifyTag import TagWrapper
 
 NAME = "Results - "
 WIDTH = 800
 
 class ResultsWindow(wx.Frame):
    def __init__(self, parent, results, dirRun):
-      print results
       toDestroy = wx.FindWindowByName(NAME)
       if not toDestroy is None:
          toDestroy.Destroy()

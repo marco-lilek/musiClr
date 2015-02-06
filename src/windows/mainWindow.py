@@ -1,6 +1,6 @@
 import wx
-from runner import Runner
-from results import ResultsWindow
+from utils.runner import Runner
+from resultsWindow import ResultsWindow
 
 class MainWindow(wx.Frame):
    def __init__(self, storage):
@@ -70,7 +70,7 @@ class MainWindow(wx.Frame):
       dlg.Destroy()
 
    def EvtText(self, event):
-      self.storage.data["targetDir"] = event.GetString()
+      sself.storage.data["targetDir"] = event.GetString()
 
    def EvtRun(self, event):
       runner = Runner(self.storage.data)
@@ -101,5 +101,5 @@ class MainWindow(wx.Frame):
          self.dirSelect.Clear()
          result = dlg.GetPath()
          self.dirSelect.ChangeValue(result)
-         self.EvtText(result)
+         self.storage.data["targetDir"] = result
       dlg.Destroy()
