@@ -25,13 +25,3 @@ class Storage:
       self.file = open("sav", "wb")
       pickle.dump(self.data, self.file)
       self.file.close()
-
-   # Artists
-   # self.data["artists"]
-
-   # Use last FM
-   # self.data["settings"]
-   
-   # target directory
-   # self.data["targetDir"]
-   
