@@ -1,10 +1,14 @@
 import wx
+from content.icon import icon
 from utils.runner import Runner
 from resultsWindow import ResultsWindow
 
 class MainWindow(wx.Frame):
    def __init__(self, storage):
       wx.Frame.__init__(self, None, -1, "musiClr", (100,100), (300,275), wx.DEFAULT_FRAME_STYLE)
+      
+      self.SetIcon(icon.GetIcon())
+
       # Close
       self.resultsWindow = None
       self.storage = storage

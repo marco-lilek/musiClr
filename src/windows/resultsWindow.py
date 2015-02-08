@@ -1,5 +1,6 @@
 import wx
 import wx.dataview as dv
+from content.icon import icon
 from utils.modifyTag import TagWrapper
 
 NAME = "Results - "
@@ -12,6 +13,7 @@ class ResultsWindow(wx.Frame):
          toDestroy.Destroy()
 
       wx.Frame.__init__(self, parent, -1, NAME + dirRun, (100,100), (WIDTH,400), wx.DEFAULT_FRAME_STYLE)
+      self.SetIcon(icon.GetIcon())
       panel = ResultsPanel(self, results)
       self.Show()
 
